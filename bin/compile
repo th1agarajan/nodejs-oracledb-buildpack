@@ -41,10 +41,6 @@ source $BP_DIR/lib/cache.sh
 source $BP_DIR/lib/dependencies.sh
 source $BP_DIR/lib/vendor/new_relic/install.sh $BUILD_DIR
 
-### Python for Oracle
-
-source $BP_DIR/bin/python
-
 ### Handle errors
 
 handle_failure() {
