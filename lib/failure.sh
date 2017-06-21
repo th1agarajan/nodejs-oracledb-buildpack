@@ -1,5 +1,12 @@
 warnings=$(mktemp -t cloudfoundry-nodejs-buildpack-XXXX)
 
+detect_package_manager() {
+  case $YARN in
+    true) echo "yarn";;
+    *) echo "npm";;
+  esac
+}
+
 failure_message() {
   local warn="$(cat $warnings)"
   echo ""
@@ -15,7 +22,7 @@ failure_message() {
 }
 
 fail_invalid_package_json() {
-  if ! cat ${1:-}/package.json | $JQ "." 1>/dev/null; then
+  if ! cat ${1:-}/package.json | jq "." 1>/dev/null; then
     error "Unable to parse package.json"
     return 1
   fi
@@ -62,6 +69,12 @@ warn_missing_package_json() {
   fi
 }
 
+warn_young_yarn() {
+  if $YARN; then
+    warning "This project was built with yarn, which is new and under development. Some projects can still be built more reliably with npm"
+  fi
+}
+
 warn_untracked_dependencies() {
   local log_file="$1"
   if grep -qi 'gulp: not found' "$log_file" || grep -qi 'gulp: command not found' "$log_file"; then
@@ -87,7 +100,7 @@ warn_missing_devdeps() {
   if grep -qi 'cannot find module' "$log_file"; then
     warning "A module may be missing from 'dependencies' in package.json"
     if [ "$NPM_CONFIG_PRODUCTION" == "true" ]; then
-      local devDeps=$(read_json "$BUILD_DIR/package.json" ".devDependencies")
+      local devDeps=$(jq -r  '.devDependencies // ""' < "$BUILD_DIR/package.json")
       if [ "$devDeps" != "" ]; then
         warning "This module may be specified in 'devDependencies' instead of 'dependencies'" "https://devcenter.heroku.com/articles/nodejs-support#devdependencies"
       fi
@@ -98,7 +111,7 @@ warn_missing_devdeps() {
 warn_no_start() {
   local log_file="$1"
   if ! [ -e "$BUILD_DIR/Procfile" ]; then
-    local startScript=$(read_json "$BUILD_DIR/package.json" ".scripts.start")
+    local startScript=$(jq -r '.scripts.start // ""' < "$BUILD_DIR/package.json")
     if [ "$startScript" == "" ]; then
       if ! [ -e "$BUILD_DIR/server.js" ]; then
         warn "This app may not specify any way to start a node process" "https://docs.cloudfoundry.org/buildpacks/node/node-tips.html#start"
@@ -116,7 +129,8 @@ warn_econnreset() {
 
 warn_unmet_dep() {
   local log_file="$1"
+  local package_manager=$(detect_package_manager)
   if grep -qi 'unmet dependency' "$log_file" || grep -qi 'unmet peer dependency' "$log_file"; then
-    warn "Unmet dependencies don't fail npm install but may cause runtime issues" "https://github.com/npm/npm/issues/7494"
+    warn "Unmet dependencies don't fail $package_manager install but may cause runtime issues" "https://github.com/npm/npm/issues/7494"
   fi
 }

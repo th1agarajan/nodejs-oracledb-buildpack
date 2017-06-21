@@ -1,8 +1,10 @@
 $: << 'cf_spec'
 require 'spec_helper'
+require 'open3'
 
 describe 'CF NodeJS Buildpack' do
-  subject(:app)           { Machete.deploy_app(app_name) }
+  subject(:app)           { Machete.deploy_app(app_name, env: app_env) }
+  let(:app_env)               { {} }
   let(:browser)           { Machete::Browser.new(app) }
   let(:buildpack_dir)     { File.join(File.dirname(__FILE__), '..', '..') }
   let(:version_file)      { File.join(buildpack_dir, 'VERSION') }
@@ -13,7 +15,7 @@ describe 'CF NodeJS Buildpack' do
   end
 
   context 'when specifying a range for the nodeJS version in the package.json' do
-    let(:app_name) { 'node_web_app_with_version_range' }
+    let(:app_name) { 'node_version_range' }
 
     it 'resolves to a nodeJS version successfully' do
       expect(app).to be_running
@@ -24,20 +26,8 @@ describe 'CF NodeJS Buildpack' do
     end
   end
 
-  context 'when specifying a version 5 for the nodeJS version in the package.json' do
-    let(:app_name) { 'node_web_app_with_version_5' }
-
-    it 'resolves to a nodeJS version successfully' do
-      expect(app).to be_running
-      expect(app).to have_logged /Downloading and installing node 5\.\d+\.\d+/
-
-      browser.visit_path('/')
-      expect(browser).to have_body('Hello, World!')
-    end
-  end
-
   context 'when specifying a version 6 for the nodeJS version in the package.json' do
-    let(:app_name) { 'node_web_app_with_version_6' }
+    let(:app_name) { 'node_version_6' }
 
     it 'resolves to a nodeJS version successfully' do
       expect(app).to be_running
@@ -46,10 +36,25 @@ describe 'CF NodeJS Buildpack' do
       browser.visit_path('/')
       expect(browser).to have_body('Hello, World!')
     end
+
+    it 'does not log a jq error' do
+      expect(app).not_to have_logged /error: Invalid character/
+    end
+
+    context 'running a task' do
+      before { skip_if_no_run_task_support_on_targeted_cf }
+
+      it 'can find node in the container' do
+        expect(app).to be_running
+
+        Open3.capture2e('cf','run-task', app_name, 'echo "RUNNING A TASK: $(node --version)"')[1].success? or raise 'Could not create run task'
+        expect(app).to have_logged(/RUNNING A TASK: v6\.\d+\.\d+/)
+      end
+    end
   end
 
   context 'when not specifying a nodeJS version in the package.json' do
-    let(:app_name) { 'node_web_app_without_version' }
+    let(:app_name) { 'without_node_version' }
 
     it 'resolves to the stable nodeJS version successfully' do
       expect(app).to be_running
@@ -65,7 +70,7 @@ describe 'CF NodeJS Buildpack' do
   end
 
   context 'with an unreleased nodejs version' do
-    let(:app_name) { 'node_web_app_with_unreleased_version' }
+    let(:app_name) { 'unreleased_node_version' }
 
     it 'displays a nice error messages and gracefully fails' do
       expect(app).to_not be_running
@@ -76,7 +81,7 @@ describe 'CF NodeJS Buildpack' do
   end
 
   context 'with an unsupported, but released, nodejs version' do
-    let(:app_name) { 'node_web_app_with_unsupported_version' }
+    let(:app_name) { 'unsupported_node_version' }
 
     it 'displays a nice error messages and gracefully fails' do
       expect(app).to_not be_running
@@ -86,8 +91,29 @@ describe 'CF NodeJS Buildpack' do
     end
   end
 
+  context 'with no Procfile and OPTIMIZE_MEMORY=true' do
+    let (:app_name) { 'simple_app' }
+    let (:app_env) { { OPTIMIZE_MEMORY: true } }
+
+    it 'is running with autosized max_old_space_size' do
+      expect(app).to be_running
+      browser.visit_path('/')
+      expect(browser).to have_body('MaxOldSpace: 262') # 350 * 75%
+    end
+  end
+
+  context 'with no Procfile and OPTIMIZE_MEMORY is unset' do
+    let (:app_name) { 'simple_app' }
+
+    it 'does not run with autosized max_old_space_size' do
+      expect(app).to be_running
+      browser.visit_path('/')
+      expect(browser).to have_body('MaxOldSpace: undefined')
+    end
+  end
+
   context 'with an app that has vendored dependencies' do
-    let(:app_name) { 'node_web_app_with_vendored_dependencies' }
+    let(:app_name) { 'vendored_dependencies' }
 
     it 'does not output protip that recommends user vendors dependencies' do
       expect(app).not_to have_logged("PRO TIP: It is recommended to vendor the application's Node.js dependencies")
@@ -117,7 +143,7 @@ describe 'CF NodeJS Buildpack' do
   end
 
   context 'with an app with a yarn.lock file' do
-    let(:app_name) { 'node_web_app_with_yarn' }
+    let(:app_name) { 'with_yarn' }
 
     it 'successfully deploys and vendors the dependencies via yarn', :uncached do
       expect(app).to have_logged("Downloading and installing yarn")
@@ -134,8 +160,30 @@ describe 'CF NodeJS Buildpack' do
     end
   end
 
+  context 'with an app with a yarn.lock and vendored dependencies' do
+    let(:app_name) { 'with_yarn_vendored' }
+
+    it 'deploys without hitting the internet', :cached do
+      expect(app).to have_logged("Downloading and installing yarn")
+      expect(app).to be_running
+      expect(app).not_to have_internet_traffic
+
+      browser.visit_path('/microtime')
+      expect(browser).to have_body(/native time: \d+\.\d+/)
+    end
+  end
+
+  context 'with an app with an out of date yarn.lock' do
+    let(:app_name) { 'out_of_date_yarn_lock' }
+
+    it 'warns that yarn.lock is out of date' do
+      expect(app).to have_logged("yarn.lock is outdated")
+      expect(app).to be_running
+    end
+  end
+
   context 'with an app with no vendored dependencies' do
-    let(:app_name) { 'node_web_app_no_vendored_dependencies' }
+    let(:app_name) { 'no_vendored_dependencies' }
 
     it 'successfully deploys and vendors the dependencies' do
       expect(app).to be_running
@@ -156,7 +204,7 @@ describe 'CF NodeJS Buildpack' do
   end
 
   context 'with an incomplete node_modules directory' do
-    let (:app_name) { 'node_web_app_with_incomplete_node_modules' }
+    let (:app_name) { 'incomplete_node_modules' }
 
     it 'downloads missing dependencies from package.json' do
       expect(app).to be_running
@@ -167,7 +215,7 @@ describe 'CF NodeJS Buildpack' do
   end
 
   context 'with an incomplete package.json' do
-    let (:app_name) { 'node_web_app_with_incomplete_package_json' }
+    let (:app_name) { 'incomplete_package_json' }
 
     it 'does not overwrite the vendored modules not listed in package.json' do
       expect(app).to be_running
@@ -195,7 +243,7 @@ describe 'CF NodeJS Buildpack' do
     end
 
     context 'with no npm version specified' do
-      let (:app_name) { 'node_web_app_airgapped_no_npm_version' }
+      let (:app_name) { 'airgapped_no_npm_version' }
 
       subject(:app) do
         Machete.deploy_app(app_name, env: {'BP_DEBUG' => '1'})
@@ -210,12 +258,26 @@ describe 'CF NodeJS Buildpack' do
     end
 
     context 'with invalid npm version specified' do
-      let (:app_name) { 'node_web_app_airgapped_invalid_npm_version' }
+      let (:app_name) { 'airgapped_invalid_npm_version' }
 
       it 'is not running and prints an error message' do
         expect(app).not_to be_running
         expect(app).to have_logged("We're unable to download the version of npm")
       end
+    end
+  end
+
+  describe 'NODE_HOME and NODE_ENV', :cached do
+    let(:app_name) { 'logenv' }
+
+    it 'sets the NODE_HOME to correct value' do
+      expect(app).to be_running
+      expect(app).to have_logged("NODE_HOME=/tmp/app/.cloudfoundry/0/node")
+
+      browser.visit_path('/')
+      expect(browser).to have_body('"NODE_HOME":"/home/vcap/app/.cloudfoundry/0/node"')
+      expect(browser).to have_body('"NODE_ENV":"production"')
+      expect(browser).to have_body('"MEMORY_AVAILABLE":"359"')
     end
   end
 end

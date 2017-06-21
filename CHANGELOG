@@ -1,3 +1,163 @@
+v1.5.36 Jun 05, 2017
+=====================
+
+* Add node 8.0.0
+  (https://www.pivotaltracker.com/story/show/146317727)
+
+v1.5.35 May 30, 2017
+=====================
+
+* Set MEMORY_AVAILABLE, WEB_MEMORY, WEB_CONCURRENCY
+  (https://www.pivotaltracker.com/story/show/146183269)
+
+* Set NODE_ENV for production
+  (https://www.pivotaltracker.com/story/show/146183269)
+
+* Add yarn 0.24.6, remove yarn 0.24.4
+  (https://www.pivotaltracker.com/story/show/145961345)
+  (https://www.pivotaltracker.com/story/show/145469419)
+
+* Add flag "OPTIMIZE_MEMORY=true" to turn max_old_space_size on
+  (https://www.pivotaltracker.com/story/show/143873083)
+
+v1.5.34 May 15, 2017
+=====================
+
+* Add yarn 0.24.4, remove yarn 0.23.4
+  (https://www.pivotaltracker.com/story/show/145364383)
+  (https://www.pivotaltracker.com/story/show/145350573)
+
+* Add EOL links for node
+  (https://www.pivotaltracker.com/story/show/144943203)
+
+* Fix NODE_HOME env var
+  (https://www.pivotaltracker.com/story/show/142852389)
+
+* Fix misleading jq error messges
+  (https://www.pivotaltracker.com/story/show/145044169)
+
+* Fix multi-buildpack support in tasks
+  (https://www.pivotaltracker.com/story/show/144964891)
+
+v1.5.33 May 03, 2017
+=====================
+
+* Add node 7.10.0, remove node 7.8.0
+  (https://www.pivotaltracker.com/story/show/144784587)
+
+* Add node 7.9.0, remove node 7.7.4
+  (https://www.pivotaltracker.com/story/show/143534007)
+
+* Add node 6.10.3, remove node 6.10.1
+  (https://www.pivotaltracker.com/story/show/144725819)
+
+* Add node 4.8.3, remove node 4.8.1
+  (https://www.pivotaltracker.com/story/show/144719795)
+
+* Add yarn 0.23.4, remove yarn 0.22.0
+  (https://www.pivotaltracker.com/story/show/144725823)
+  (https://www.pivotaltracker.com/story/show/143255621)
+
+* Add Multi Buildpack support
+  (https://www.pivotaltracker.com/story/show/141616657)
+
+* Ensure yarn install does not reach out to internet
+  (https://www.pivotaltracker.com/story/show/142334089)
+
+* Use correct package manager in unmet deps warning
+  (https://www.pivotaltracker.com/story/show/143837939)
+
+* Add Appdynamics support
+  (https://www.pivotaltracker.com/story/show/143585835)
+
+v1.5.32 Apr 04, 2017
+=====================
+
+* Add node 4.8.2, remove node 4.8.0
+  (https://www.pivotaltracker.com/story/show/143029841)
+
+* Add node 6.10.2, remove node 6.10.0
+  (https://www.pivotaltracker.com/story/show/143029841)
+
+* Add node 7.8.0, remove node 7.7.3
+  (https://www.pivotaltracker.com/story/show/142657575)
+
+
+v1.5.31 Mar 27, 2017
+=====================
+
+* Add node 4.8.1, Remove node 4.7.3
+  - Set Node 4.8.1 as the default
+  (https://www.pivotaltracker.com/story/show/142185261)
+
+* Add node 6.10.1, remove node 6.9.5
+  (https://www.pivotaltracker.com/story/show/142185261)
+
+* Add node 7.7.3, remove node 7.5.0
+  (https://www.pivotaltracker.com/story/show/141738953)
+
+* Add node 7.7.4, Remove node 7.6.0
+  (https://www.pivotaltracker.com/story/show/142188245)
+  (https://www.pivotaltracker.com/story/show/141360971)
+
+* Add yarn 0.22.0, remove yarn 0.21.2
+  (https://www.pivotaltracker.com/story/show/141155101)
+  (https://www.pivotaltracker.com/story/show/140681333)
+
+* Add support for supply buildpacks
+  (https://www.pivotaltracker.com/story/show/141616657)
+
+* Use pessimistic locking on ruby version in Gemfile
+  (https://www.pivotaltracker.com/story/show/140770891)
+
+v1.5.30 Feb 27, 2017
+=====================
+
+* Add node 7.6.0 remove node 7.4.0
+  (https://www.pivotaltracker.com/story/show/140375739)
+
+* Add node 6.10.0 remove node 6.9.4
+  (https://www.pivotaltracker.com/story/show/140375739)
+
+* Add node 4.8.0 remove node 4.7.2
+  (https://www.pivotaltracker.com/story/show/140373175)
+
+* Add yarn 0.21.2, remove yarn 0.20.0
+  (https://www.pivotaltracker.com/story/show/139882371)
+
+v1.5.29 Feb 07, 2017
+=====================
+
+* Add EOL dates for node
+  (https://www.pivotaltracker.com/story/show/137288317)
+
+* Add node 7.5.0, remove node 7.3.0
+  (https://www.pivotaltracker.com/story/show/138780181)
+
+* Add node 6.9.5, remove node 6.9.3
+  (https://www.pivotaltracker.com/story/show/138771375)
+
+* Add node 4.7.3, remove node 4.7.1
+  (https://www.pivotaltracker.com/story/show/138773607)
+
+* Add yarn 0.20.0, remove yarn 0.19.1
+  (https://www.pivotaltracker.com/story/show/138614091)
+
+v1.5.28 Jan 24, 2017
+=====================
+
+* Remove node 0.12.x version line
+  (https://www.pivotaltracker.com/story/show/136591333)
+
+* Remove node 5.x version line
+  (https://www.pivotaltracker.com/story/show/136591333)
+
+* Add yarn 0.19.1, remove yarn 0.19.0
+  (https://www.pivotaltracker.com/story/show/138003527)
+
+* Add yarn to cached buildpack
+  (https://www.pivotaltracker.com/story/show/136510177)
+
 v1.5.27 Jan 10, 2017
 =====================
 

@@ -26,9 +26,7 @@ detect_memory() {
   esac
 }
 
-export PATH="$HOME/.heroku/node/bin:$HOME/.heroku/yarn/bin:$PATH:$HOME/bin:$HOME/node_modules/.bin"
-export NODE_HOME="$HOME/.heroku/node"
-export NODE_ENV=${NODE_ENV:-production}
+export PATH="$PATH:$HOME/bin:$HOME/node_modules/.bin"
 
 echo "----setting oracle env vars----"
 export LD_LIBRARY_PATH=$HOME/.heroku/oracle/instantclient:${LD_LIBRARY_PATH:-}

@@ -1,7 +1,7 @@
 source $BP_DIR/lib/binaries.sh
 
 create_signature() {
-  echo "$(node --version); $(npm --version)"
+  echo "$(node --version); $(npm --version); $(yarn --version 2>/dev/null || true)"
 }
 
 save_signature() {
@@ -27,8 +27,8 @@ get_cache_status() {
 }
 
 get_cache_directories() {
-  local dirs1=$(read_json "$BUILD_DIR/package.json" ".cacheDirectories | .[]?")
-  local dirs2=$(read_json "$BUILD_DIR/package.json" ".cache_directories | .[]?")
+  local dirs1=$(jq -r ".cacheDirectories // [] | .[]" < "$BUILD_DIR/package.json")
+  local dirs2=$(jq -r ".cache_directories // [] | .[]" < "$BUILD_DIR/package.json")
 
   if [ -n "$dirs1" ]; then
     echo "$dirs1"
@@ -54,6 +54,12 @@ restore_cache_directories() {
       fi
     fi
   done
+}
+
+remove_caches_from_slug() {
+  local build_dir=${1:-}
+  rm -rf "$build_dir/.npm"
+  rm -rf "$build_dir/.cache/yarn"
 }
 
 clear_cache() {
