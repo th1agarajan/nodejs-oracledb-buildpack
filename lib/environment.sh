@@ -12,13 +12,13 @@ add_oracle_env(){
     export LD_LIBRARY_PATH=$build_dir/oracle/instantclient:${LD_LIBRARY_PATH:-}
     export OCI_LIB_DIR=$build_dir/oracle/instantclient
     export OCI_INC_DIR=$build_dir/oracle/instantclient/sdk/include
+    export GIT_SSL_NO_VERIFY=1
     echo "----/Add Oracle env variables----"
   }
-  
+
 list_node_config() {
   echo ""
   printenv | grep ^NPM_CONFIG_ || true
-  printenv | grep ^YARN_ || true
   printenv | grep ^NODE_ || true
 
   if [ "$NPM_CONFIG_PRODUCTION" = "true" ] && [ "$NODE_ENV" != "production" ]; then
@@ -27,4 +27,3 @@ list_node_config() {
     echo "https://docs.npmjs.com/misc/config#production"
   fi
 }
-

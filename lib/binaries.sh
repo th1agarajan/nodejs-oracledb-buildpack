@@ -7,48 +7,6 @@ needs_resolution() {
   fi
 }
 
-install_yarn() {
-  local dir="$1"
-  local version="$2"
-
-  if needs_resolution "$version"; then
-    local yarn_default_version=$($BP_DIR/compile-extensions/bin/default_version_for $BP_DIR/manifest.yml yarn)
-    local version=$yarn_default_version
-  fi
-
-  local exit_code=0
-  local filtered_url=""
-
-  echo "Downloading and installing yarn ($version)..."
-  local yarn_tar_gz="/tmp/yarn-v$version.tar.gz"
-
-  filtered_url=$($BP_DIR/compile-extensions/bin/download_dependency_by_name yarn $version $yarn_tar_gz) || exit_code=$?
-  if [ $exit_code -ne 0 ]; then
-    echo -e "`$BP_DIR/compile-extensions/bin/recommend_dependency_by_name yarn $version`" 1>&2
-    exit 22
-  fi
-  $BP_DIR/compile-extensions/bin/warn_if_newer_patch_by_name yarn $version
-
-  echo "Downloaded [$filtered_url]"
-
-  rm -rf $dir
-  mkdir -p "$dir"
-  # https://github.com/yarnpkg/yarn/issues/770
-  if tar --version | grep -q 'gnu'; then
-    tar xzf $yarn_tar_gz -C "$dir" --strip 1 --warning=no-unknown-keyword
-  else
-    tar xzf $yarn_tar_gz -C "$dir" --strip 1
-  fi
-  chmod +x $dir/bin/*
-
-  ## Create bin symlinks
-  pushd "$DEPS_DIR/$DEPS_IDX/bin"
-    ln -s ../yarn/bin/* .
-  popd
-
-  echo "Installed yarn $(yarn --version)"
-}
-
 install_nodejs() {
   local requested_version="$1"
   local resolved_version=$requested_version
@@ -70,7 +28,6 @@ install_nodejs() {
   local downloaded_file="/tmp/node-v$resolved_version.tar.gz"
   local exit_code=0
   local filtered_url=""
-
   filtered_url=$($BP_DIR/compile-extensions/bin/download_dependency_by_name node $resolved_version $downloaded_file) || exit_code=$?
   if [ $exit_code -ne 0 ]; then
     echo -e "`$BP_DIR/compile-extensions/bin/recommend_dependency_by_name node $resolved_version`" 1>&2
@@ -78,10 +35,9 @@ install_nodejs() {
   fi
   $BP_DIR/compile-extensions/bin/warn_if_newer_patch_by_name node $resolved_version
 
-
   echo "Downloaded [$filtered_url]"
   rm -rf $dir/*
-  tar xzf $downloaded_file -C $dir --strip 1
+  tar xf $downloaded_file -C $dir --strip 1
   chmod +x $dir/bin/*
 
   ## Create bin symlinks

@@ -1,7 +1,7 @@
 source $BP_DIR/lib/binaries.sh
 
 create_signature() {
-  echo "$(node --version); $(npm --version); $(yarn --version 2>/dev/null || true)"
+  echo "$(node --version); $(npm --version) 2>/dev/null || true)"
 }
 
 save_signature() {
@@ -59,7 +59,6 @@ restore_cache_directories() {
 remove_caches_from_slug() {
   local build_dir=${1:-}
   rm -rf "$build_dir/.npm"
-  rm -rf "$build_dir/.cache/yarn"
 }
 
 clear_cache() {

@@ -1,12 +1,5 @@
 warnings=$(mktemp -t cloudfoundry-nodejs-buildpack-XXXX)
 
-detect_package_manager() {
-  case $YARN in
-    true) echo "yarn";;
-    *) echo "npm";;
-  esac
-}
-
 failure_message() {
   local warn="$(cat $warnings)"
   echo ""
@@ -69,12 +62,6 @@ warn_missing_package_json() {
   fi
 }
 
-warn_young_yarn() {
-  if $YARN; then
-    warning "This project was built with yarn, which is new and under development. Some projects can still be built more reliably with npm"
-  fi
-}
-
 warn_untracked_dependencies() {
   local log_file="$1"
   if grep -qi 'gulp: not found' "$log_file" || grep -qi 'gulp: command not found' "$log_file"; then
@@ -129,7 +116,7 @@ warn_econnreset() {
 
 warn_unmet_dep() {
   local log_file="$1"
-  local package_manager=$(detect_package_manager)
+  local package_manager="npm"
   if grep -qi 'unmet dependency' "$log_file" || grep -qi 'unmet peer dependency' "$log_file"; then
     warn "Unmet dependencies don't fail $package_manager install but may cause runtime issues" "https://github.com/npm/npm/issues/7494"
   fi

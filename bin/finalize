@@ -8,7 +8,7 @@ unset GIT_DIR     # Avoid GIT_DIR leak from previous build steps
 
 ### Constants
 
-DEFAULT_CACHE=".npm .cache/yarn bower_components"
+DEFAULT_CACHE=".npm bower_components"
 
 ### Configure directories
 
@@ -48,7 +48,6 @@ handle_failure() {
   warn_angular_resolution "$LOG_FILE"
   warn_missing_devdeps "$LOG_FILE"
   warn_econnreset "$LOG_FILE"
-  warn_young_yarn "$LOG_FILE"
   failure_message | output "$LOG_FILE"
 }
 trap 'handle_failure' ERR
@@ -56,13 +55,11 @@ trap 'handle_failure' ERR
 ### Check initial state
 
 [ -e "$BUILD_DIR/node_modules" ] && PREBUILD=true || PREBUILD=false
-[ -f "$BUILD_DIR/yarn.lock" ] && YARN=true || YARN=false
 
 node_modules_subdirs=0
 if [ -d "$BUILD_DIR/node_modules" ]; then
   node_modules_subdirs=$(find "$BUILD_DIR"/node_modules -mindepth 1 -maxdepth 1 -type d | wc -l)
 fi
-
 if [ "$node_modules_subdirs" -eq 0 ]; then
 	info "PRO TIP: It is recommended to vendor the application's Node.js dependencies"
 	info "         See http://docs.cloudfoundry.org/buildpacks/node/index.html#vendoring for more information"
@@ -114,9 +111,8 @@ restore_cache | output "$LOG_FILE"
 build_dependencies() {
   install_oracle_libraries "$BUILD_DIR/.heroku"
   run_if_present 'heroku-prebuild'
-  if $YARN; then
-    yarn_node_modules "$BUILD_DIR"
-  elif $PREBUILD; then
+  npm_move_loopback_oracle_package "$BUILD_DIR"
+  if $PREBUILD; then
     echo "Prebuild detected (node_modules already exists)"
     npm_rebuild "$BUILD_DIR"
   else

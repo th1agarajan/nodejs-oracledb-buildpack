@@ -17,9 +17,6 @@ url_to_dependency_map:
 - match: node\/v(\d+\.\d+\.\d+)
   name: node
   version: "$1"
-- match: yarn-v(\d+\.\d+\.\d+)\.tar\.gz
-  name: yarn
-  version: "$1"
 dependency_deprecation_dates:
 - match: 4\.\d+\.\d+
   version_line: '4'
@@ -63,20 +60,20 @@ dependencies:
   - cflinuxfs2
 - name: node
   version: 6.10.3
-  uri: https://buildpacks.cloudfoundry.org/dependencies/node/node-6.10.3-linux-x64-34d4554a.tgz
-  md5: 34d4554aed60809aa0d3df581c84d3a7
+  uri: https://nodejs.org/dist/v6.10.3/node-v6.10.3-linux-x64.tar.xz
+  md5: 084edbf2b4c2eb1c5620c283c377ed87
+  cf_stacks:
+  - cflinuxfs2
+- name: node
+  version: 6.9.4
+  uri: https://buildpacks.cloudfoundry.org/dependencies/node/node-6.9.4-linux-x64-34d4554a.tgz
+  md5: 374ad90048055f1d11bc2ffb70ce08a7
   cf_stacks:
   - cflinuxfs2
 - name: node
   version: 7.10.0
   uri: https://buildpacks.cloudfoundry.org/dependencies/node/node-7.10.0-linux-x64-a608be81.tgz
   md5: a608be8101ca3523405f37fa4ace16bc
-  cf_stacks:
-  - cflinuxfs2
-- name: yarn
-  version: 0.24.6
-  uri: https://buildpacks.cloudfoundry.org/dependencies/yarn/yarn-v0.24.6-156eb82f.tar.gz
-  md5: 156eb82fc7a7635bbc2738a9af936fc5
   cf_stacks:
   - cflinuxfs2
 - name: node
