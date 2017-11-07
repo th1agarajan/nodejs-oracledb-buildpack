@@ -12,7 +12,7 @@ install_oracle_libraries(){
   unzip instantclient-sdk.zip
   mv instantclient_12_2 instantclient
   cd instantclient
-  ln -s libclntsh.so.12.2 libclntsh.so
+  ln -s libclntsh.so.12.1 libclntsh.so
   export LD_LIBRARY_PATH=$build_dir/oracle/instantclient:$LD_LIBRARY_PATH
 }
 
